@@ -7,7 +7,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import domtoimage from "dom-to-image";
 import jsPDF from "jspdf";
 
-const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#8dd1e1", "#d0ed57", "#a4de6c", "#d88884"];
+const COLORS = ["#00c9ff", "#92fe9d", "#ffc658", "#ff8042", "#8dd1e1", "#d0ed57", "#a4de6c", "#d88884"];
 
 const factors = {
   "天然气": { unit: "Nm³/t", factor: 0.0021650152*10000 },
@@ -78,72 +78,78 @@ export default function EAFCarbonCalculator() {
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <Card><CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
-        <div><Label>电炉容量（吨）</Label><Input type="number" value={capacity} onChange={(e) => setCapacity(parseFloat(e.target.value) || 0)} /></div>
-        <div><Label>冶炼周期（分钟）</Label><Input type="number" value={cycle} onChange={(e) => setCycle(parseFloat(e.target.value) || 0)} /></div>
-        <div><Label>年生产天数</Label><Input type="number" value={days} onChange={(e) => setDays(parseFloat(e.target.value) || 0)} /></div>
-        <div><Label>钢铁料消耗</Label><Input type="number" value={steelRatio} onChange={(e) => setSteelRatio(parseFloat(e.target.value) || 0)} /></div>
-        <div><Label>废钢比例</Label><Input type="number" step="0.01" value={scrapRatio} onChange={(e) => setScrapRatio(parseFloat(e.target.value) || 0)} /></div>
-      </CardContent></Card>
+    <div className="p-6 space-y-8 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
+      <Card className="bg-gray-800 border border-gray-600 shadow-lg rounded-2xl">
+        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6">
+          <div><Label>电炉容量（吨）</Label><Input type="number" value={capacity} onChange={(e) => setCapacity(parseFloat(e.target.value) || 0)} /></div>
+          <div><Label>冶炼周期（分钟）</Label><Input type="number" value={cycle} onChange={(e) => setCycle(parseFloat(e.target.value) || 0)} /></div>
+          <div><Label>年生产天数</Label><Input type="number" value={days} onChange={(e) => setDays(parseFloat(e.target.value) || 0)} /></div>
+          <div><Label>钢铁料消耗</Label><Input type="number" value={steelRatio} onChange={(e) => setSteelRatio(parseFloat(e.target.value) || 0)} /></div>
+          <div><Label>废钢比例</Label><Input type="number" step="0.01" value={scrapRatio} onChange={(e) => setScrapRatio(parseFloat(e.target.value) || 0)} /></div>
+        </CardContent>
+      </Card>
 
-      <Card><CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
-        {Object.entries(factors).map(([material, meta]) =>
-          material === "铁水、生铁" || material === "废钢" ? null : (
-            <div key={material}><Label>{material}（{meta.unit}）</Label>
-              <Input type="number" value={intensities[material] || ""} onChange={(e) => handleInput(material, e.target.value)} />
-            </div>
-          )
-        )}
-      </CardContent></Card>
+      <Card className="bg-gray-800 border border-gray-600 shadow-lg rounded-2xl">
+        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6">
+          {Object.entries(factors).map(([material, meta]) =>
+            material === "铁水、生铁" || material === "废钢" ? null : (
+              <div key={material}><Label>{material}（{meta.unit}）</Label>
+                <Input type="number" value={intensities[material] || ""} onChange={(e) => handleInput(material, e.target.value)} />
+              </div>
+            )
+          )}
+        </CardContent>
+      </Card>
 
-      <Card id="result-card"><CardContent className="space-y-2 pt-4">
-        <p>📌 吨钢铁水用量 = {ironAmount.toFixed(3)} 吨</p>
-        <p>📌 吨钢废钢用量 = {scrapAmount.toFixed(3)} 吨</p>
-        <p>📌 年产量（万吨） = {annualOutput.toFixed(4)}</p>
-        <p>📌 总碳排放量：{total.toFixed(2)} 吨 CO₂</p>
-        <p>📌 吨钢碳排放量：{perTon.toFixed(2)} kg CO₂/t</p>
+      <Card id="result-card" className="bg-gray-800 border border-gray-600 shadow-xl rounded-2xl">
+        <CardContent className="space-y-4 pt-6">
+          <p>📌 吨钢铁水用量 = {ironAmount.toFixed(3)} 吨</p>
+          <p>📌 吨钢废钢用量 = {scrapAmount.toFixed(3)} 吨</p>
+          <p>📌 年产量（万吨） = {annualOutput.toFixed(4)}</p>
+          <p>📌 总碳排放量：{total.toFixed(2)} 吨 CO₂</p>
+          <p>📌 吨钢碳排放量：{perTon.toFixed(2)} kg CO₂/t</p>
 
-        <div>
-          <h4 className="font-semibold pt-2">📊 吨钢碳排构成（前五）</h4>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie data={perTonEmissions} dataKey="value" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${Math.round(value)}`}>
-                {perTonEmissions.map((entry, i) => (
-                  <Cell key={`toncell-${i}`} fill={COLORS[i % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-          <ul className="list-disc pl-5 text-sm mt-2">
-            {perTonEmissions.map((e, i) => (
-              <li key={`perTon-${i}`}>{e.name}: {e.value.toFixed(3)} kg CO₂/t</li>
-            ))}
-          </ul>
-        </div>
+          <div>
+            <h4 className="font-semibold pt-2 text-cyan-400">📊 吨钢碳排构成（前五）</h4>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie data={perTonEmissions} dataKey="value" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${Math.round(value)}`}>
+                  {perTonEmissions.map((entry, i) => (
+                    <Cell key={`toncell-${i}`} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <ul className="list-disc pl-5 text-sm mt-2">
+              {perTonEmissions.map((e, i) => (
+                <li key={`perTon-${i}`}>{e.name}: {e.value.toFixed(3)} kg CO₂/t</li>
+              ))}
+            </ul>
+          </div>
 
-        <div>
-          <h4 className="font-semibold pt-6">📊 总碳排前五</h4>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie data={top5} dataKey="value" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${Math.round(value)}`}>
-                {top5.map((entry, i) => (
-                  <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-          <ul className="list-disc pl-5 text-sm mt-2">
-            {top5.map((e, i) => (
-              <li key={`top5-${i}`}>{e.name}: {e.value.toFixed(3)} 吨 CO₂</li>
-            ))}
-          </ul>
-        </div>
+          <div>
+            <h4 className="font-semibold pt-6 text-cyan-400">📊 总碳排前五</h4>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie data={top5} dataKey="value" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${Math.round(value)}`}>
+                  {top5.map((entry, i) => (
+                    <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <ul className="list-disc pl-5 text-sm mt-2">
+              {top5.map((e, i) => (
+                <li key={`top5-${i}`}>{e.name}: {e.value.toFixed(3)} 吨 CO₂</li>
+              ))}
+            </ul>
+          </div>
 
-        <Button className="mt-6" onClick={exportPDF}>📄 下载 PDF 报告</Button>
-      </CardContent></Card>
+          <Button className="mt-6 bg-cyan-600 hover:bg-cyan-500 text-white" onClick={exportPDF}>📄 下载 PDF 报告</Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
