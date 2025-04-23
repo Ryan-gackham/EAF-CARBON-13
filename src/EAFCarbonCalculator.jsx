@@ -113,7 +113,7 @@ export default function EAFCarbonCalculator() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className=\"font-semibold text-cyan-400\">📊 吨钢碳排总量：{perTon.toFixed(2)} kg CO₂/t</h4>
+              <h4 className="font-semibold text-cyan-400">📊 吨钢碳排总量：{perTon.toFixed(2)} kg CO₂/t</h4>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie data={top5} dataKey="value" cx="50%" cy="50%" outerRadius={100}>
@@ -132,7 +132,7 @@ export default function EAFCarbonCalculator() {
             </div>
 
             <div>
-              <h4 className=\"font-semibold text-cyan-400\">📊 总碳排总量：{total.toFixed(2)} 吨 CO₂</h4>
+              <h4 className="font-semibold text-cyan-400">📊 总碳排总量：{total.toFixed(2)} 吨 CO₂</h4>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie data={top5} dataKey="value" cx="50%" cy="50%" outerRadius={100}>
