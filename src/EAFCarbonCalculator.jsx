@@ -3,12 +3,24 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import domtoimage from "dom-to-image";
 import jsPDF from "jspdf";
 
-// Minimal replacements for missing UI components
-const Card = ({ children, className }) => <div className={"rounded-xl p-4 bg-white/5 shadow " + className}>{children}</div>;
+// Enhanced card style for industrial theme
+const Card = ({ children, className }) => (
+  <div className={"rounded-xl p-4 bg-gradient-to-br from-slate-800 to-slate-900 shadow-xl border border-cyan-600 " + className}>{children}</div>
+);
 const CardContent = ({ children, className }) => <div className={className}>{children}</div>;
-const Input = ({ value, type = "text", onChange, step }) => <input type={type} value={value} onChange={onChange} step={step} className="w-full rounded bg-gray-700 text-white p-2" />;
-const Label = ({ children }) => <label className="block text-sm mb-1 font-medium text-white">{children}</label>;
-const Button = ({ children, onClick, className }) => <button onClick={onClick} className={className + " px-4 py-2 rounded"}>{children}</button>;
+const Input = ({ value, type = "text", onChange, step }) => (
+  <input
+    type={type}
+    value={value}
+    onChange={onChange}
+    step={step}
+    className="w-full rounded bg-slate-700 text-cyan-100 p-2 border border-cyan-500 focus:outline-none"
+  />
+);
+const Label = ({ children }) => <label className="block text-xs mb-1 font-semibold text-cyan-300 uppercase tracking-wide">{children}</label>;
+const Button = ({ children, onClick, className }) => (
+  <button onClick={onClick} className={className + " px-4 py-2 rounded border border-cyan-500 bg-cyan-600 hover:bg-cyan-500 text-white transition"}>{children}</button>
+);
 
 const COLORS = ["#00c9ff", "#92fe9d", "#ffc658", "#ff8042", "#8dd1e1", "#d0ed57", "#a4de6c", "#d88884"];
 
@@ -83,7 +95,7 @@ export default function EAFCarbonCalculator() {
   };
 
   return (
-    <div className="p-6 space-y-8 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
+    <div className="p-6 space-y-8 bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white min-h-screen font-mono">
       <Card>
         <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6">
           <div><Label>电炉容量（吨）</Label><Input type="number" value={capacity} onChange={(e) => setCapacity(parseFloat(e.target.value) || 0)} /></div>
@@ -111,12 +123,12 @@ export default function EAFCarbonCalculator() {
           <p>📌 吨钢铁水用量 = {ironAmount.toFixed(3)} 吨</p>
           <p>📌 吨钢废钢用量 = {scrapAmount.toFixed(3)} 吨</p>
           <p>📌 年产量（万吨） = {annualOutput.toFixed(4)}</p>
-          <p>📌 总碳排放量：{total.toFixed(2)} 吨 CO₂</p>
-          <p>📌 吨钢碳排放量：{perTon.toFixed(2)} kg CO₂/t</p>
+          <p className="text-cyan-400 font-bold">📌 总碳排放量：{total.toFixed(2)} 吨 CO₂</p>
+          <p className="text-cyan-400 font-bold">📌 吨钢碳排放量：{perTon.toFixed(2)} kg CO₂/t</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-semibold text-cyan-400">📊 吨钢碳排总量：{perTon.toFixed(2)} kg CO₂/t</h4>
+              <h4 className="text-cyan-400 font-semibold">📊 吨钢碳排总量（前五突出）</h4>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie data={fullPerTonEmissions} dataKey="value" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${value.toFixed(3)}`}>
@@ -135,7 +147,7 @@ export default function EAFCarbonCalculator() {
             </div>
 
             <div>
-              <h4 className="font-semibold text-cyan-400">📊 总碳排总量：{total.toFixed(2)} 吨 CO₂</h4>
+              <h4 className="text-cyan-400 font-semibold">📊 总碳排总量（前五突出）</h4>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie data={fullTotalEmissions} dataKey="value" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${value.toFixed(3)}`}>
@@ -154,7 +166,7 @@ export default function EAFCarbonCalculator() {
             </div>
           </div>
 
-          <Button className="mt-6 bg-cyan-600 hover:bg-cyan-500 text-white" onClick={exportPDF}>📄 下载 PDF 报告</Button>
+          <Button className="mt-6" onClick={exportPDF}>📄 下载 PDF 报告</Button>
         </CardContent>
       </Card>
     </div>
