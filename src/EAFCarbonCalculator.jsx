@@ -10,17 +10,17 @@ import jsPDF from "jspdf";
 const COLORS = ["#00c9ff", "#92fe9d", "#ffc658", "#ff8042", "#8dd1e1", "#d0ed57", "#a4de6c", "#d88884"];
 
 const factors = {
-  "天然气": { unit: "Nm³/t", factor: 0.0021650152*10000 },
-  "铁水、生铁": { unit: "kg/t", factor: 1.73932*10000 },
-  "石灰": { unit: "kg/t", factor: 1.023711*10 },
-  "轻烧白云石": { unit: "kg/t", factor: 1.023711*10 },
-  "废钢": { unit: "t/t", factor: 0.0154*1000 },
-  "电极": { unit: "kg/t", factor: 3.663*10 },
-  "增碳剂、碳粉": { unit: "kg/t", factor: 3.6667*10 },
-  "合金": { unit: "kg/t", factor: 0.275*10 },
-  "电力": { unit: "kWh/t", factor: 0.5568*10 },
-  "蒸汽回收": { unit: "kg/t", factor: 0.00011*-100/0.00275 },
-  "钢坯": { unit: "t/t", factor: 0.0154*1000 }
+  "天然气": { unit: "Nm³/t", factor: 0.0021650152 * 10000 },
+  "铁水、生铁": { unit: "kg/t", factor: 1.73932 * 10000 },
+  "石灰": { unit: "kg/t", factor: 1.023711 * 10 },
+  "轻烧白云石": { unit: "kg/t", factor: 1.023711 * 10 },
+  "废钢": { unit: "t/t", factor: 0.0154 * 1000 },
+  "电极": { unit: "kg/t", factor: 3.663 * 10 },
+  "增碳剂、碳粉": { unit: "kg/t", factor: 3.6667 * 10 },
+  "合金": { unit: "kg/t", factor: 0.275 * 10 },
+  "电力": { unit: "kWh/t", factor: 0.5568 * 10 },
+  "蒸汽回收": { unit: "kg/t", factor: 0.00011 * -100 / 0.00275 },
+  "钢坯": { unit: "t/t", factor: 0.0154 * 1000 }
 };
 
 export default function EAFCarbonCalculator() {
@@ -53,17 +53,14 @@ export default function EAFCarbonCalculator() {
   });
 
   const total = emissions.reduce((sum, e) => sum + e.value, 0);
+  const perTon = (total * 1000 / (annualOutput * 10000 || 1));
+
   const top5 = [...emissions].sort((a, b) => b.value - a.value).slice(0, 5);
   const fullPerTonEmissions = emissions.map(e => ({
     name: e.name,
     value: (e.value * 1000 / (annualOutput * 10000 || 1))
   })).sort((a, b) => b.value - a.value);
   const fullTotalEmissions = [...emissions].sort((a, b) => b.value - a.value);
-  const perTon = (total * 1000 / (annualOutput * 10000 || 1));
-  const perTonEmissions = emissions.map(e => ({
-    name: e.name,
-    value: (e.value * 1000 / (annualOutput * 10000 || 1))
-  })).sort((a, b) => b.value - a.value).slice(0, 5);
 
   const handleInput = (material, val) => {
     const v = val === "" ? "" : parseFloat(val) || 0;
@@ -107,27 +104,50 @@ export default function EAFCarbonCalculator() {
       </Card>
 
       <Card id="result-card" className="bg-gray-800 border border-gray-600 shadow-xl rounded-2xl">
-        <CardContent className="space-y-4 pt-6">
+        <CardContent className="space-y-6 pt-6">
           <p>📌 吨钢铁水用量 = {ironAmount.toFixed(3)} 吨</p>
           <p>📌 吨钢废钢用量 = {scrapAmount.toFixed(3)} 吨</p>
           <p>📌 年产量（万吨） = {annualOutput.toFixed(4)}</p>
           <p>📌 总碳排放量：{total.toFixed(2)} 吨 CO₂</p>
           <p>📌 吨钢碳排放量：{perTon.toFixed(2)} kg CO₂/t</p>
 
-          $1
-<ul className="list-disc pl-5 text-sm mt-2">
-  {fullPerTonEmissions.map((e, i) => (
-    <li key={`full-ton-${i}`}>{e.name}: {e.value.toFixed(3)} kg CO₂/t</li>
-  ))}
-</ul>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold text-cyan-400">📊 吨钢碳排构成（前五）</h4>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie data={top5} dataKey="value" cx="50%" cy="50%" outerRadius={100}>
+                    {top5.map((entry, i) => (
+                      <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+              <ul className="list-disc pl-5 text-sm mt-2">
+                {fullPerTonEmissions.map((e, i) => (
+                  <li key={`perTon-${i}`}>{e.name}: {e.value.toFixed(3)} kg CO₂/t</li>
+                ))}
+              </ul>
             </div>
 
-            $1
-<ul className="list-disc pl-5 text-sm mt-2">
-  {fullTotalEmissions.map((e, i) => (
-    <li key={`full-total-${i}`}>{e.name}: {e.value.toFixed(3)} 吨 CO₂</li>
-  ))}
-</ul>
+            <div>
+              <h4 className="font-semibold text-cyan-400">📊 总碳排构成（前五）</h4>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie data={top5} dataKey="value" cx="50%" cy="50%" outerRadius={100}>
+                    {top5.map((entry, i) => (
+                      <Cell key={`cell-total-${i}`} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+              <ul className="list-disc pl-5 text-sm mt-2">
+                {fullTotalEmissions.map((e, i) => (
+                  <li key={`total-${i}`}>{e.name}: {e.value.toFixed(3)} 吨 CO₂</li>
+                ))}
+              </ul>
             </div>
           </div>
 
