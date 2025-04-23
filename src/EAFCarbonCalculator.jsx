@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { Card, CardContent } from "./components/ui/card";
-import { Input } from "./components/ui/input";
-import { Label } from "./components/ui/label";
-import { Button } from "./components/ui/button";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import domtoimage from "dom-to-image";
 import jsPDF from "jspdf";
+
+// Minimal replacements for missing UI components
+const Card = ({ children, className }) => <div className={"rounded-xl p-4 bg-white/5 shadow " + className}>{children}</div>;
+const CardContent = ({ children, className }) => <div className={className}>{children}</div>;
+const Input = ({ value, type = "text", onChange, step }) => <input type={type} value={value} onChange={onChange} step={step} className="w-full rounded bg-gray-700 text-white p-2" />;
+const Label = ({ children }) => <label className="block text-sm mb-1 font-medium text-white">{children}</label>;
+const Button = ({ children, onClick, className }) => <button onClick={onClick} className={className + " px-4 py-2 rounded"}>{children}</button>;
 
 const COLORS = ["#00c9ff", "#92fe9d", "#ffc658", "#ff8042", "#8dd1e1", "#d0ed57", "#a4de6c", "#d88884"];
 
@@ -81,7 +84,7 @@ export default function EAFCarbonCalculator() {
 
   return (
     <div className="p-6 space-y-8 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
-      <Card className="bg-gray-800 border border-gray-600 shadow-lg rounded-2xl">
+      <Card>
         <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6">
           <div><Label>电炉容量（吨）</Label><Input type="number" value={capacity} onChange={(e) => setCapacity(parseFloat(e.target.value) || 0)} /></div>
           <div><Label>冶炼周期（分钟）</Label><Input type="number" value={cycle} onChange={(e) => setCycle(parseFloat(e.target.value) || 0)} /></div>
@@ -91,7 +94,7 @@ export default function EAFCarbonCalculator() {
         </CardContent>
       </Card>
 
-      <Card className="bg-gray-800 border border-gray-600 shadow-lg rounded-2xl">
+      <Card>
         <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6">
           {Object.entries(factors).map(([material, meta]) =>
             material === "铁水、生铁" || material === "废钢" ? null : (
@@ -103,7 +106,7 @@ export default function EAFCarbonCalculator() {
         </CardContent>
       </Card>
 
-      <Card id="result-card" className="bg-gray-800 border border-gray-600 shadow-xl rounded-2xl">
+      <Card id="result-card">
         <CardContent className="space-y-6 pt-6">
           <p>📌 吨钢铁水用量 = {ironAmount.toFixed(3)} 吨</p>
           <p>📌 吨钢废钢用量 = {scrapAmount.toFixed(3)} 吨</p>
@@ -116,9 +119,9 @@ export default function EAFCarbonCalculator() {
               <h4 className="font-semibold text-cyan-400">📊 吨钢碳排总量：{perTon.toFixed(2)} kg CO₂/t</h4>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
-                  <Pie data={top5} dataKey="value" cx="50%" cy="50%" outerRadius={100}>
-                    {top5.map((entry, i) => (
-                      <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
+                  <Pie data={fullPerTonEmissions} dataKey="value" cx="50%" cy="50%" outerRadius={100}>
+                    {fullPerTonEmissions.map((entry, i) => (
+                      <Cell key={`cell-ton-${i}`} fill={COLORS[i % COLORS.length]} stroke={top5.some(t => t.name === entry.name) ? "#ffffff" : undefined} strokeWidth={top5.some(t => t.name === entry.name) ? 2 : 0} />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -135,9 +138,9 @@ export default function EAFCarbonCalculator() {
               <h4 className="font-semibold text-cyan-400">📊 总碳排总量：{total.toFixed(2)} 吨 CO₂</h4>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
-                  <Pie data={top5} dataKey="value" cx="50%" cy="50%" outerRadius={100}>
-                    {top5.map((entry, i) => (
-                      <Cell key={`cell-total-${i}`} fill={COLORS[i % COLORS.length]} />
+                  <Pie data={fullTotalEmissions} dataKey="value" cx="50%" cy="50%" outerRadius={100}>
+                    {fullTotalEmissions.map((entry, i) => (
+                      <Cell key={`cell-total-${i}`} fill={COLORS[i % COLORS.length]} stroke={top5.some(t => t.name === entry.name) ? "#ffffff" : undefined} strokeWidth={top5.some(t => t.name === entry.name) ? 2 : 0} />
                     ))}
                   </Pie>
                   <Tooltip />
