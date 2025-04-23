@@ -11,7 +11,7 @@ const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#8dd1e1", "#d0ed57"
 
 const factors = {
   "天然气": { unit: "Nm³/t", factor: 0.0021650152*10000 },
-  "铁水、生铁": { unit: "kg/t", factor: 1.73932*1000 },
+  "铁水、生铁": { unit: "kg/t", factor: 1.73932*10000 },
   "石灰": { unit: "kg/t", factor: 1.023711*10 },
   "轻烧白云石": { unit: "kg/t", factor: 1.023711*10 },
   "废钢": { unit: "t/t", factor: 0.0154*1000 },
@@ -19,7 +19,7 @@ const factors = {
   "增碳剂、碳粉": { unit: "kg/t", factor: 3.6667*10 },
   "铬铁合金": { unit: "kg/t", factor: 0.275*10 },
   "化石电力（净使用）": { unit: "kWh/t", factor: 0.5568*10 },
-  "蒸汽回收": { unit: "kg/t", factor: 0.00011 },
+  "蒸汽回收": { unit: "kg/t", factor: 0.00011*-1000 },
   "钢坯": { unit: "t/t", factor: 0.0154*1000 }
 };
 
