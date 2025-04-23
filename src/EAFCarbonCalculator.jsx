@@ -19,7 +19,7 @@ const factors = {
   "增碳剂、碳粉": { unit: "kg/t", factor: 3.6667*10 },
   "铬铁合金": { unit: "kg/t", factor: 0.275*10 },
   "化石电力（净使用）": { unit: "kWh/t", factor: 0.5568*10 },
-  "蒸汽回收": { unit: "kg/t", factor: 0.00011*-100000/0.00275 },
+  "蒸汽回收": { unit: "kg/t", factor: 0.00011*-100/0.00275 },
   "钢坯": { unit: "t/t", factor: 0.0154*1000 }
 };
 
