@@ -35,14 +35,15 @@ export default function EAFCarbonCalculator() {
   const dailyOutput = capacity * dailyFurnaceCount;
   const annualOutput = dailyOutput * days / 10000;
 
+  const ironAmount = steelRatio * (1 - scrapRatio);
+  const scrapAmount = steelRatio * scrapRatio;
+
   const materialAmounts = Object.entries(intensities).reduce((acc, [material, intensity]) => {
     const divisor = factors[material]?.unit.includes("t") ? 1 : 1000;
     acc[material] = (intensity * annualOutput) / divisor;
     return acc;
   }, {});
 
-  const ironAmount = steelRatio * (1 - scrapRatio);
-  const scrapAmount = steelRatio * scrapRatio;
   materialAmounts["铁水、生铁"] = ironAmount * annualOutput;
   materialAmounts["废钢"] = scrapAmount * annualOutput;
 
@@ -97,6 +98,8 @@ export default function EAFCarbonCalculator() {
       </CardContent></Card>
 
       <Card id="result-card"><CardContent className="space-y-2 pt-4">
+        <p>📌 吨钢铁水用量 = {ironAmount.toFixed(3)} 吨</p>
+        <p>📌 吨钢废钢用量 = {scrapAmount.toFixed(3)} 吨</p>
         <p>📌 年产量（万吨） = {annualOutput.toFixed(4)}</p>
         <p>📌 总碳排放量：{total.toFixed(2)} 吨 CO₂</p>
         <p>📌 吨钢碳排放量：{perTon.toFixed(2)} kg CO₂/t</p>
