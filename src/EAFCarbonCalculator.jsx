@@ -18,8 +18,8 @@ const factors = {
   "电极": { unit: "kg/t", factor: 3.663 },
   "增碳剂、碳粉": { unit: "kg/t", factor: 3.6667 },
   "铬铁合金": { unit: "kg/t", factor: 0.275 },
-  "化石电力（净使用）": { unit: "kWh/t", factor: 0.5568 },
-  "蒸汽回收": { unit: "kg/t", factor: 0.110 },
+  "化石电力（净使用）": { unit: "kWh/t", factor: 0.0005568 },
+  "蒸汽回收": { unit: "kg/t", factor: 0.00011 },
   "钢坯": { unit: "t/t", factor: 0.0154 }
 };
 
@@ -37,7 +37,7 @@ export default function EAFCarbonCalculator() {
 
   const materialAmounts = Object.entries(intensities).reduce((acc, [material, intensity]) => {
     const divisor = factors[material]?.unit.includes("t") ? 1 : 1000;
-    const adjusted = material === "蒸汽回收" ? intensity * 0.0026 * 1000 : intensity;
+    const adjusted = material === "蒸汽回收" ? intensity : intensity;
     acc[material] = (adjusted * annualOutput) / divisor;
     return acc;
   }, {});
