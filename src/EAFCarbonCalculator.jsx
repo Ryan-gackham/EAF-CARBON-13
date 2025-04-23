@@ -54,6 +54,11 @@ export default function EAFCarbonCalculator() {
 
   const total = emissions.reduce((sum, e) => sum + e.value, 0);
   const top5 = [...emissions].sort((a, b) => b.value - a.value).slice(0, 5);
+  const fullPerTonEmissions = emissions.map(e => ({
+    name: e.name,
+    value: (e.value * 1000 / (annualOutput * 10000 || 1))
+  })).sort((a, b) => b.value - a.value);
+  const fullTotalEmissions = [...emissions].sort((a, b) => b.value - a.value);
   const perTon = (total * 1000 / (annualOutput * 10000 || 1));
   const perTonEmissions = emissions.map(e => ({
     name: e.name,
@@ -109,42 +114,21 @@ export default function EAFCarbonCalculator() {
           <p>📌 总碳排放量：{total.toFixed(2)} 吨 CO₂</p>
           <p>📌 吨钢碳排放量：{perTon.toFixed(2)} kg CO₂/t</p>
 
-          <div>
-            <h4 className="font-semibold pt-2 text-cyan-400">📊 吨钢碳排构成（前五）</h4>
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie data={perTonEmissions} dataKey="value" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${Math.round(value)}`}>
-                  {perTonEmissions.map((entry, i) => (
-                    <Cell key={`toncell-${i}`} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <ul className="list-disc pl-5 text-sm mt-2">
-              {perTonEmissions.map((e, i) => (
-                <li key={`perTon-${i}`}>{e.name}: {e.value.toFixed(3)} kg CO₂/t</li>
-              ))}
-            </ul>
-          </div>
+          $1
+<ul className="list-disc pl-5 text-sm mt-2">
+  {fullPerTonEmissions.map((e, i) => (
+    <li key={`full-ton-${i}`}>{e.name}: {e.value.toFixed(3)} kg CO₂/t</li>
+  ))}
+</ul>
+            </div>
 
-          <div>
-            <h4 className="font-semibold pt-6 text-cyan-400">📊 总碳排前五</h4>
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie data={top5} dataKey="value" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${Math.round(value)}`}>
-                  {top5.map((entry, i) => (
-                    <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <ul className="list-disc pl-5 text-sm mt-2">
-              {top5.map((e, i) => (
-                <li key={`top5-${i}`}>{e.name}: {e.value.toFixed(3)} 吨 CO₂</li>
-              ))}
-            </ul>
+            $1
+<ul className="list-disc pl-5 text-sm mt-2">
+  {fullTotalEmissions.map((e, i) => (
+    <li key={`full-total-${i}`}>{e.name}: {e.value.toFixed(3)} 吨 CO₂</li>
+  ))}
+</ul>
+            </div>
           </div>
 
           <Button className="mt-6 bg-cyan-600 hover:bg-cyan-500 text-white" onClick={exportPDF}>📄 下载 PDF 报告</Button>
