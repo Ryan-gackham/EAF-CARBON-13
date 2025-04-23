@@ -37,8 +37,7 @@ export default function EAFCarbonCalculator() {
 
   const materialAmounts = Object.entries(intensities).reduce((acc, [material, intensity]) => {
     const divisor = factors[material]?.unit.includes("t") ? 1 : 1000;
-    const adjusted = material === "蒸汽回收" ? intensity : intensity;
-    acc[material] = (adjusted * annualOutput) / divisor;
+    acc[material] = (intensity * annualOutput) / divisor;
     return acc;
   }, {});
 
@@ -104,8 +103,8 @@ export default function EAFCarbonCalculator() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <h4 className="font-semibold pt-4">📊 总碳排前五</h4>
-            <ResponsiveContainer width="100%" height={300}>
+            <h4 className="font-semibold pt-2">📊 总碳排前五</h4>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie data={top5} dataKey="value" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${Math.round(value)}`}>
                   {top5.map((entry, i) => (
@@ -115,10 +114,16 @@ export default function EAFCarbonCalculator() {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
+            <ul className="list-disc pl-5 text-sm mt-2">
+              {top5.map((e, i) => (
+                <li key={`top5-${i}`}>{e.name}: {e.value.toFixed(3)} 吨 CO₂</li>
+              ))}
+            </ul>
           </div>
+
           <div>
-            <h4 className="font-semibold pt-4">📊 吨钢碳排构成（前五）</h4>
-            <ResponsiveContainer width="100%" height={300}>
+            <h4 className="font-semibold pt-2">📊 吨钢碳排构成（前五）</h4>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie data={perTonEmissions} dataKey="value" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${Math.round(value)}`}>
                   {perTonEmissions.map((entry, i) => (
@@ -128,26 +133,15 @@ export default function EAFCarbonCalculator() {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
+            <ul className="list-disc pl-5 text-sm mt-2">
+              {perTonEmissions.map((e, i) => (
+                <li key={`perTon-${i}`}>{e.name}: {e.value.toFixed(3)} kg CO₂/t</li>
+              ))}
+            </ul>
           </div>
         </div>
 
-        <div className="text-sm pt-4">
-          <p>📋 总排放明细：</p>
-          <ul className="list-disc pl-5">
-            {emissions.map((e, i) => (
-              <li key={`total-${i}`}>{e.name}: {e.value.toFixed(3)} 吨 CO₂</li>
-            ))}
-          </ul>
-
-          <p className="pt-4">📋 吨钢排放构成明细：</p>
-          <ul className="list-disc pl-5">
-            {perTonEmissions.map((e, i) => (
-              <li key={`perTon-${i}`}>{e.name}: {e.value.toFixed(3)} kg CO₂/t</li>
-            ))}
-          </ul>
-        </div>
-
-        <Button className="mt-4" onClick={exportPDF}>📄 下载 PDF 报告</Button>
+        <Button className="mt-6" onClick={exportPDF}>📄 下载 PDF 报告</Button>
       </CardContent></Card>
     </div>
   );
