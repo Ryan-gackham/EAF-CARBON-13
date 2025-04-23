@@ -1,0 +1,123 @@
+
+import React, { useState } from "react";
+import { Card, CardContent } from "./components/ui/card";
+import { Input } from "./components/ui/input";
+import { Label } from "./components/ui/label";
+import { Button } from "./components/ui/button";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import domtoimage from "dom-to-image";
+import jsPDF from "jspdf";
+
+const factors = {
+  "天然气": { unit: "Nm³/t", factor: 0.0021650152 },
+  "铁水、生铁": { unit: "kg/t", factor: 1.73932 },
+  "石灰": { unit: "kg/t", factor: 1.023711 },
+  "轻烧白云石": { unit: "kg/t", factor: 1.023711 },
+  "废钢": { unit: "t/t", factor: 0.0154 },
+  "电极": { unit: "kg/t", factor: 3.663 },
+  "增碳剂、碳粉": { unit: "kg/t", factor: 3.6667 },
+  "铬铁合金": { unit: "kg/t", factor: 0.275 },
+  "化石电力（净使用）": { unit: "kWh/t", factor: 0.5568 },
+  "蒸汽回收": { unit: "kg/t", factor: 0.110 },
+  "钢坯": { unit: "t/t", factor: 0.0154 }
+};
+
+
+const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#8dd1e1", "#d0ed57", "#a4de6c", "#d88884"];
+
+export default function EAFCarbonCalculator() {
+  const [capacity, setCapacity] = useState(100);
+  const [cycle, setCycle] = useState(60);
+  const [days, setDays] = useState(320);
+  const [steelRatio, setSteelRatio] = useState(1.087);
+  const [scrapRatio, setScrapRatio] = useState(0.7);
+  const [intensities, setIntensities] = useState({});
+
+  const dailyFurnaceCount = 1440 / cycle;
+  const dailyOutput = capacity * dailyFurnaceCount;
+  const annualOutput = dailyOutput * days / 10000;
+
+  const materialAmounts = Object.entries(intensities).reduce((acc, [material, intensity]) => {
+    const divisor = factors[material]?.unit.includes("t") ? 1 : 1000;
+    const adjusted = material === "蒸汽回收" ? intensity * 0.0026 : intensity;
+    acc[material] = (adjusted * annualOutput) / divisor;
+    return acc;
+  }, {});
+
+  const ironAmount = steelRatio * (1 - scrapRatio);
+  const scrapAmount = steelRatio * scrapRatio;
+  materialAmounts["铁水、生铁"] = ironAmount * annualOutput;
+  materialAmounts["废钢"] = scrapAmount * annualOutput;
+
+  const emissions = Object.entries(materialAmounts).map(([material, amount]) => {
+    const factor = factors[material]?.factor || 0;
+    return { name: material, value: amount * factor };
+  });
+
+  const total = emissions.reduce((sum, e) => sum + e.value, 0);
+  const top5 = [...emissions].sort((a, b) => b.value - a.value).slice(0, 5);
+
+  const perTon = (total * 1000 / (annualOutput * 10000 || 1));
+  const perTonEmissions = emissions.map(e => ({
+    name: e.name,
+    value: (e.value * 1000 / (annualOutput * 10000 || 1))
+  })).sort((a, b) => b.value - a.value).slice(0, 5);
+
+  const handleInput = (material, val) => {
+    const v = val === "" ? "" : parseFloat(val) || 0;
+    setIntensities({ ...intensities, [material]: v });
+  };
+
+  const exportPDF = () => {
+    const input = document.getElementById("result-card");
+    domtoimage.toPng(input).then((imgData) => {
+      const pdf = new jsPDF();
+      const width = pdf.internal.pageSize.getWidth();
+      const imgProps = pdf.getImageProperties(imgData);
+      const height = (imgProps.height * width) / imgProps.width;
+      pdf.addImage(imgData, "PNG", 0, 0, width, height);
+      pdf.save("carbon-report.pdf");
+    });
+  };
+
+  return (
+    <div className="p-4 space-y-4">
+      <Card><CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+        <div><Label>电炉容量（吨）</Label><Input type="number" value={capacity} onChange={(e) => setCapacity(parseFloat(e.target.value) || 0)} /></div>
+        <div><Label>冶炼周期（分钟）</Label><Input type="number" value={cycle} onChange={(e) => setCycle(parseFloat(e.target.value) || 0)} /></div>
+        <div><Label>年生产天数</Label><Input type="number" value={days} onChange={(e) => setDays(parseFloat(e.target.value) || 0)} /></div>
+        <div><Label>钢铁料消耗</Label><Input type="number" value={steelRatio} onChange={(e) => setSteelRatio(parseFloat(e.target.value) || 0)} /></div>
+        <div><Label>废钢比例</Label><Input type="number" step="0.01" value={scrapRatio} onChange={(e) => setScrapRatio(parseFloat(e.target.value) || 0)} /></div>
+      </CardContent></Card>
+
+      <Card><CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+        {Object.entries(factors).map(([material, meta]) =>
+          material === "铁水、生铁" || material === "废钢" ? null : (
+            <div key={material}><Label>{material}（{meta.unit}）</Label>
+              <Input type="number" value={intensities[material] || ""} onChange={(e) => handleInput(material, e.target.value)} />
+            </div>
+          )
+        )}
+      </CardContent></Card>
+
+      <Card id="result-card"><CardContent className="space-y-2 pt-4">
+        <p>📌 年产量（万吨） = {annualOutput.toFixed(4)}</p>
+        <p>📌 总碳排放量：{total.toFixed(2)} 吨 CO₂</p>
+        <p>📌 吨钢碳排放量：{perTon.toFixed(2)} kg CO₂/t</p>
+
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie data={top5} dataKey="value" cx="25%" cy="50%" outerRadius={80} label={({ name, value }) => `${name}: ${Math.round(value)}`}>
+              {top5.map((entry, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+            </Pie>
+            <Pie data={perTonEmissions} dataKey="value" cx="75%" cy="50%" outerRadius={80} label={({ name, value }) => `${name}: ${Math.round(value)}`}>
+              {perTonEmissions.map((entry, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+        <Button onClick={exportPDF}>📄 下载 PDF 报告</Button>
+      </CardContent></Card>
+    </div>
+  );
+}
