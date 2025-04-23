@@ -119,7 +119,7 @@ export default function EAFCarbonCalculator() {
               <h4 className="font-semibold text-cyan-400">📊 吨钢碳排总量：{perTon.toFixed(2)} kg CO₂/t</h4>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
-                  <Pie data={fullPerTonEmissions} dataKey="value" cx="50%" cy="50%" outerRadius={100}>
+                  <Pie data={fullPerTonEmissions} dataKey="value" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${value.toFixed(3)}`}>
                     {fullPerTonEmissions.map((entry, i) => (
                       <Cell key={`cell-ton-${i}`} fill={COLORS[i % COLORS.length]} stroke={top5.some(t => t.name === entry.name) ? "#ffffff" : undefined} strokeWidth={top5.some(t => t.name === entry.name) ? 2 : 0} />
                     ))}
@@ -138,7 +138,7 @@ export default function EAFCarbonCalculator() {
               <h4 className="font-semibold text-cyan-400">📊 总碳排总量：{total.toFixed(2)} 吨 CO₂</h4>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
-                  <Pie data={fullTotalEmissions} dataKey="value" cx="50%" cy="50%" outerRadius={100}>
+                  <Pie data={fullTotalEmissions} dataKey="value" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${value.toFixed(3)}`}>
                     {fullTotalEmissions.map((entry, i) => (
                       <Cell key={`cell-total-${i}`} fill={COLORS[i % COLORS.length]} stroke={top5.some(t => t.name === entry.name) ? "#ffffff" : undefined} strokeWidth={top5.some(t => t.name === entry.name) ? 2 : 0} />
                     ))}
