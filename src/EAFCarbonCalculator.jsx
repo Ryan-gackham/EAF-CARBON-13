@@ -12,16 +12,16 @@ const Button = ({ children, onClick, className }) => <button onClick={onClick} c
 const COLORS = ["#00c9ff", "#92fe9d", "#ffc658", "#ff8042", "#8dd1e1", "#d0ed57", "#a4de6c", "#d88884"];
 
 const factors = {
-  "天然气": { unit: "Nm³/t", factor: 21.650 },
-  "铁水、生铁": { unit: "kg/t", factor: 1.7393 },
-  "石灰": { unit: "kg/t", factor: 1.0237 },
-  "轻烧白云石": { unit: "kg/t", factor: 1.0237 },
-  "废钢": { unit: "t/t", factor: 0.0154 },
-  "电极": { unit: "kg/t", factor: 3.6630 },
-  "增碳剂、碳粉": { unit: "kg/t", factor: 3.6667 },
-  "电力": { unit: "kWh/t", factor: 0.00005568 },
-  "蒸汽回收": { unit: "kg/t", factor: 0.00011 },
-  "合金": { unit: "kg/t", factor: 0.2750 }
+  "天然气": { unit: "Nm³/t", factor: 21.650, multiplier: 1 },
+  "铁水、生铁": { unit: "kg/t", factor: 1.7393, multiplier: 10000 },
+  "石灰": { unit: "kg/t", factor: 1.0237, multiplier: 10 },
+  "轻烧白云石": { unit: "kg/t", factor: 1.0237, multiplier: 10 },
+  "废钢": { unit: "t/t", factor: 0.0154, multiplier: 1000 },
+  "电极": { unit: "kg/t", factor: 3.6630, multiplier: 10 },
+  "增碳剂、碳粉": { unit: "kg/t", factor: 3.6667, multiplier: 10 },
+  "电力": { unit: "kWh/t", factor: 0.5568, multiplier: 10 },
+  "蒸汽回收": { unit: "kg/t", factor: 0.11, multiplier: -0.1/0.00275 },
+  "合金": { unit: "kg/t", factor: 0.2750, multiplier: 10 }
 };
 
 export default function EAFCarbonCalculator() {
@@ -53,7 +53,8 @@ export default function EAFCarbonCalculator() {
 
   const emissions = Object.entries(materialAmounts).map(([material, amount]) => {
     const factor = factorsState[material] || 0;
-    return { name: material, value: amount * factor };
+    const multiplier = factors[material]?.multiplier || 1;
+    return { name: material, value: amount * factor * multiplier };
   });
 
   const total = emissions.reduce((sum, e) => sum + e.value, 0);
@@ -89,7 +90,7 @@ export default function EAFCarbonCalculator() {
   return (
     <div className="p-6 space-y-8 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
       <div className="flex items-center gap-4 mb-6">
-        <img src="/logo.png" alt="Logo" className="w-0.8 h-0.8 rounded-full border border-cyan-500" />
+        <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-full border border-cyan-500" />
         <div>
           <h1 className="text-xl font-bold text-cyan-400">电弧炉智控新观察</h1>
           <p className="text-sm text-gray-300">后续会陆续更新电弧炉计算小程序</p>
@@ -113,6 +114,7 @@ export default function EAFCarbonCalculator() {
               <tr className="border-b border-gray-600">
                 <th className="text-left p-2">物料名称</th>
                 <th className="text-left p-2">排放因子</th>
+                <th className="text-left p-2">换算系数</th>
                 <th className="text-left p-2">吨钢消耗量（单位）</th>
               </tr>
             </thead>
@@ -120,13 +122,8 @@ export default function EAFCarbonCalculator() {
               {Object.entries(factors).map(([material, meta]) => (
                 <tr key={material} className="border-b border-gray-800">
                   <td className="p-2">{material}</td>
-                  <td className="p-2">
-                    <Input
-                      type="number"
-                      value={factorsState[material]}
-                      onChange={(e) => handleFactorChange(material, e.target.value)}
-                    />
-                  </td>
+                  <td className="p-2">{factorsState[material]}</td>
+                  <td className="p-2">{meta.multiplier}</td>
                   <td className="p-2">
                     {material === "废钢" || material === "铁水、生铁" ? (
                       <span className="text-gray-500">自动计算</span>
