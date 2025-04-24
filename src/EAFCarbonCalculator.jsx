@@ -93,7 +93,7 @@ export default function EAFCarbonCalculator() {
         <img src="/logo1.jpg" alt="Logo" className="w-12 h-12 rounded-full border border-cyan-500" />
         <div>
           <h1 className="text-xl font-bold text-cyan-400">电弧炉智控新观察-后续会陆续更新电弧炉其他小程序</h1>
-          <p className="text-sm font-bold text-red-400">后续会陆续更新电弧炉计算小程序</p>
+          <p className="text-sm font-bold text-red-400">请关注上方公众号</p>
         </div>
       </div>
 
