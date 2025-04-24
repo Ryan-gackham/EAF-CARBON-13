@@ -12,17 +12,16 @@ const Button = ({ children, onClick, className }) => <button onClick={onClick} c
 const COLORS = ["#00c9ff", "#92fe9d", "#ffc658", "#ff8042", "#8dd1e1", "#d0ed57", "#a4de6c", "#d88884"];
 
 const factors = {
-  "天然气": { unit: "Nm³/t", factor: 0.0021650152 * 10000 },
-  "铁水、生铁": { unit: "kg/t", factor: 1.73932 * 10000 },
-  "石灰": { unit: "kg/t", factor: 1.023711 * 10 },
-  "轻烧白云石": { unit: "kg/t", factor: 1.023711 * 10 },
-  "废钢": { unit: "t/t", factor: 0.0154 * 1000 },
-  "电极": { unit: "kg/t", factor: 3.663 * 10 },
-  "增碳剂、碳粉": { unit: "kg/t", factor: 3.6667 * 10 },
-  "合金": { unit: "kg/t", factor: 0.275 * 10 },
-  "电力": { unit: "kWh/t", factor: 0.5568 * 10 },
-  "蒸汽回收": { unit: "kg/t", factor: 0.00011 * -100 / 0.00275 },
-  "钢坯": { unit: "t/t", factor: 0.0154 * 1000 }
+  "天然气": { unit: "Nm³/t", factor: 21.650 },
+  "铁水、生铁": { unit: "kg/t", factor: 1.7393 },
+  "石灰": { unit: "kg/t", factor: 1.0237 },
+  "轻烧白云石": { unit: "kg/t", factor: 1.0237 },
+  "废钢": { unit: "t/t", factor: 0.0154 },
+  "电极": { unit: "kg/t", factor: 3.6630 },
+  "增碳剂、碳粉": { unit: "kg/t", factor: 3.6667 },
+  "电力": { unit: "kWh/t", factor: 0.00005568 },
+  "蒸汽回收": { unit: "kg/t", factor: 0.00011 },
+  "合金": { unit: "kg/t", factor: 0.2750 }
 };
 
 export default function EAFCarbonCalculator() {
@@ -90,12 +89,22 @@ export default function EAFCarbonCalculator() {
   return (
     <div className="p-6 space-y-8 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
       <div className="flex items-center gap-4 mb-6">
-        <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-full border border-cyan-500" />
+        <img src="/logo.png" alt="Logo" className="w-0.8 h-0.8 rounded-full border border-cyan-500" />
         <div>
           <h1 className="text-xl font-bold text-cyan-400">电弧炉智控新观察</h1>
           <p className="text-sm text-gray-300">后续会陆续更新电弧炉计算小程序</p>
         </div>
       </div>
+
+      <Card>
+        <CardContent className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div><Label>电炉工程容量（吨/炉）</Label><Input type="number" value={capacity} onChange={(e) => setCapacity(parseFloat(e.target.value) || 0)} /></div>
+          <div><Label>电炉冶炼周期（分钟/炉）</Label><Input type="number" value={cycle} onChange={(e) => setCycle(parseFloat(e.target.value) || 0)} /></div>
+          <div><Label>年生产天数</Label><Input type="number" value={days} onChange={(e) => setDays(parseFloat(e.target.value) || 0)} /></div>
+          <div><Label>钢铁料消耗</Label><Input type="number" value={steelRatio} onChange={(e) => setSteelRatio(parseFloat(e.target.value) || 0)} /></div>
+          <div><Label>废钢比例</Label><Input type="number" step="0.01" value={scrapRatio} onChange={(e) => setScrapRatio(parseFloat(e.target.value) || 0)} /></div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent>
