@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LabelList } from "recharts";
 import domtoimage from "dom-to-image";
 import jsPDF from "jspdf";
 
@@ -90,10 +90,10 @@ export default function EAFCarbonCalculator() {
   return (
     <div className="p-6 space-y-8 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
       <div className="flex items-center gap-4 mb-6">
-        <img src="/logo.png" alt="Logo" className="w-0.8 h-0.8 rounded-full border border-cyan-50" />
+        <img src="/logo.png" alt="Logo" className="w-12 h-12 rounded-full border border-cyan-500" />
         <div>
           <h1 className="text-xl font-bold text-cyan-400">电弧炉智控新观察</h1>
-          <p className="text-sm text-gray-300">后续会陆续更新电弧炉计算小程序</p>
+          <p className="text-sm text-red-400">后续会陆续更新电弧炉计算小程序</p>
         </div>
       </div>
 
@@ -154,12 +154,12 @@ export default function EAFCarbonCalculator() {
             <h4 className="text-md mb-2 text-white">吨钢碳排放总量：{perTon.toFixed(2)} kg CO₂/t</h4>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
-                <Pie dataKey="value" data={fullPerTonEmissions} outerRadius={80} label>
+                <Pie dataKey="value" data={fullPerTonEmissions} outerRadius={80} label={({ name, value }) => `${name} (${value.toFixed(3)})`}>
                   {fullPerTonEmissions.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={(value) => `${value.toFixed(3)} kg CO₂/t`} />
               </PieChart>
             </ResponsiveContainer>
             <ul className="mt-2 text-sm text-gray-200">
@@ -176,12 +176,12 @@ export default function EAFCarbonCalculator() {
             <h4 className="text-md mb-2 text-white">总碳排放量：{total.toFixed(2)} 吨 CO₂</h4>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
-                <Pie dataKey="value" data={fullTotalEmissions} outerRadius={80} label>
+                <Pie dataKey="value" data={fullTotalEmissions} outerRadius={80} label={({ name, value }) => `${name} (${value.toFixed(3)})`}>
                   {fullTotalEmissions.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={(value) => `${value.toFixed(3)} 吨 CO₂`} />
               </PieChart>
             </ResponsiveContainer>
             <ul className="mt-2 text-sm text-gray-200">
