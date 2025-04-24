@@ -46,11 +46,9 @@ export default function EAFCarbonCalculator() {
   const scrapAmount = steelRatio * scrapRatio;
 
   const materialAmounts = Object.entries(intensities).reduce((acc, [material, intensity]) => {
-    const divisor = factors[material]?.unit.includes("t") ? 1 : 1000;
-    acc[material] = (intensity * annualOutput) / divisor;
+    acc[material] = intensity * annualOutput / (factors[material]?.unit.includes("t") ? 1 : 1000);
     return acc;
   }, {});
-
   materialAmounts["铁水、生铁"] = ironAmount * annualOutput;
   materialAmounts["废钢"] = scrapAmount * annualOutput;
 
@@ -72,7 +70,6 @@ export default function EAFCarbonCalculator() {
     const v = val === "" ? "" : parseFloat(val) || 0;
     setIntensities({ ...intensities, [material]: v });
   };
-
   const handleFactorChange = (material, val) => {
     const v = parseFloat(val) || 0;
     setFactorsState({ ...factorsState, [material]: v });
@@ -93,9 +90,9 @@ export default function EAFCarbonCalculator() {
   return (
     <div className="p-6 space-y-8 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
       <div className="flex items-center gap-4 mb-6">
-        <img src="/logo.png" alt="Logo" className="w-16 h-16 rounded-full border border-cyan-500" />
+        <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-full border border-cyan-500" />
         <div>
-          <h1 className="text-2xl font-bold text-cyan-400">电弧炉智控新观察</h1>
+          <h1 className="text-xl font-bold text-cyan-400">电弧炉智控新观察</h1>
           <p className="text-sm text-gray-300">后续会陆续更新电弧炉计算小程序</p>
         </div>
       </div>
@@ -104,9 +101,22 @@ export default function EAFCarbonCalculator() {
         <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {Object.entries(factors).map(([material, meta]) => (
             <div key={material}>
-              <Label>{material} 因子</Label>
+              <Label>{material} 排放因子</Label>
               <Input type="number" value={factorsState[material]} onChange={(e) => handleFactorChange(material, e.target.value)} />
             </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Object.entries(factors).map(([material, meta]) => (
+            material === "废钢" || material === "铁水、生铁" ? null : (
+              <div key={material}>
+                <Label>{material} 吨钢消耗（{meta.unit}）</Label>
+                <Input type="number" value={intensities[material] || ""} onChange={(e) => handleInput(material, e.target.value)} />
+              </div>
+            )
           ))}
         </CardContent>
       </Card>
