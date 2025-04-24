@@ -90,9 +90,9 @@ export default function EAFCarbonCalculator() {
   return (
     <div className="p-6 space-y-8 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
       <div className="flex items-center gap-4 mb-6">
-        <img src="/logo1.png" alt="Logo" className="w-12 h-12 rounded-full border border-cyan-500" />
+        <img src="/logo1.jpg" alt="Logo" className="w-12 h-12 rounded-full border border-cyan-500" />
         <div>
-          <h1 className="text-xl font-bold text-cyan-400">电弧炉智控新观察</h1>
+          <h1 className="text-xl font-bold text-cyan-400">电弧炉智控新观察-后续会陆续更新电弧炉其他小程序</h1>
           <p className="text-sm font-bold text-red-400">后续会陆续更新电弧炉计算小程序</p>
         </div>
       </div>
