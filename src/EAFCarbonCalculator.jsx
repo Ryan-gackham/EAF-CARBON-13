@@ -12,16 +12,16 @@ const Button = ({ children, onClick, className }) => <button onClick={onClick} c
 const COLORS = ["#00c9ff", "#92fe9d", "#ffc658", "#ff8042", "#8dd1e1", "#d0ed57", "#a4de6c", "#d88884"];
 
 const factors = {
-  "天然气": { unit: "Nm³/t", factor: 21.650, multiplier: 1 },
-  "铁水、生铁": { unit: "kg/t", factor: 1.7393, multiplier: 10000 },
-  "石灰": { unit: "kg/t", factor: 1.0237, multiplier: 10 },
-  "轻烧白云石": { unit: "kg/t", factor: 1.0237, multiplier: 10 },
+  "天然气": { unit: "Nm³/t", factor: 2.162, multiplier: 1 },
+  "铁水、生铁": { unit: "kg/t", factor: 0.172, multiplier: 100000 },
+  "石灰": { unit: "kg/t", factor: 0.440, multiplier: 10 },
+  "轻烧白云石": { unit: "kg/t", factor: 0.440, multiplier: 10 },
   "废钢": { unit: "t/t", factor: 0.0154, multiplier: 1000 },
   "电极": { unit: "kg/t", factor: 3.6630, multiplier: 10 },
   "增碳剂、碳粉": { unit: "kg/t", factor: 3.6667, multiplier: 10 },
-  "电力": { unit: "kWh/t", factor: 0.5568, multiplier: 10 },
-  "蒸汽回收": { unit: "kg/t", factor: 0.11, multiplier: -0.1/0.00275 },
-  "合金": { unit: "kg/t", factor: 0.2750, multiplier: 10 }
+  "电力": { unit: "kWh/t", factor: 0.6205, multiplier: 10 },
+  "蒸汽回收": { unit: "kg/t", factor: 0.112, multiplier: -0.1/0.00275 },
+  "合金": { unit: "kg/t", factor: 0.2950, multiplier: 10 }
 };
 
 export default function EAFCarbonCalculator() {
